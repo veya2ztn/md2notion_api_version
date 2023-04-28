@@ -7,7 +7,7 @@ Clone the repository and install dependencies:
 
 ```bash
 pip install md2notion
-git clone https://github.com/your-username/notion-markdown-uploader.git
+git clone https://github.com/veya2ztn/md2notion_api_version.git
 cd notion-markdown-uploader
 
 ```
