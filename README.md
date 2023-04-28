@@ -34,9 +34,7 @@ Step2: link `connection` to the synced database page:
 - Press setting button at right-upper
 - Find `Add Connection` and link the page
 
-> It is possible to handle the whole notion project via Api. 
->
-> It is recommend to read [notion-sdk-py](https://github.com/ramnes/notion-sdk-py) and [API reference](https://developers.notion.com/reference).
+> It is possible to handle the whole notion project via Api and I recommend to read [notion-sdk-py](https://github.com/ramnes/notion-sdk-py) and [API reference](https://developers.notion.com/reference).
 
 ----
 
