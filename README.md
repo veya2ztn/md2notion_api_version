@@ -6,8 +6,10 @@ Use Notion API to upload .md file to notion.so for typora writing style.
 Clone the repository and install dependencies:
 
 ```bash
+pip install md2notion
 git clone https://github.com/your-username/notion-markdown-uploader.git
 cd notion-markdown-uploader
+
 ```
 
 ## Configuration
