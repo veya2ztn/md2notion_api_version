@@ -6,7 +6,11 @@ import os
 def get_parameter():
     parser = argparse.ArgumentParser()
     parser.add_argument("--file_path", '-f',help="input file_path")
+    parser.add_argument("--connection_key", type=str, help="the notion connection key")
+    parser.add_argument("--database_id", type=str, help="the notion database_id")
+    parser.add_argument("--smms_token", type=str, help="the smms token")
     parser.add_argument("--start_line", default=0, type=int, help="the start line of the update")
+    
     args = parser.parse_args()
     return args
 
@@ -31,12 +35,10 @@ if __name__ == '__main__':
 
    
     args = get_parameter()
-
-    connection_key = "secret_BKwdN9LdZKFERa1DSazBJHl71P8FbTDMcukT7bddre8"
-    database_id    = "88c52f93-7663-497d-93b2-45934c741f39"
-    client         = NotionSyncDatabase(connection_key, database_id)
-    uploader       = Md2NotionUploader(image_host='smms', smms_token='dOzGIRGBYbAPU5kv8SysZgzNyMioYLmX')
-    
+    connection_key = args.connection_key
+    database_id  = args.database_id
+    client      = NotionSyncDatabase(connection_key, database_id)
+    uploader       = Md2NotionUploader(image_host='smms', smms_token=args.smms_token)
     filepath   = args.file_path
     start_line = args.start_line
     upload_single_file(filepath, client, uploader, start_line = start_line)

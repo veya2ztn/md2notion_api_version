@@ -66,7 +66,7 @@ class Md2NotionUploader:
                         "type": "external",
                         "external": {
                             "url": url
-                        }##'embed': {'caption': [],'url': url}
+                        }##'embed': {'caption': [],'url': url} #<-- for onedrive
                     }
                 })
             else:
