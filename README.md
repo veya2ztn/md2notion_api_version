@@ -20,7 +20,7 @@ The preset configuration work for `all markdown files are collected in one datab
 
 For example, all markdown files appear as follow:
 
-![image-20230428191459321](README.assets/image-20230428191459321.png)
+![image-20230428191459321](https://raw.githubusercontent.com/veya2ztn/md2notion_api_version/main/figures/image-20230428191459321.png)
 
 We use [notion api](https://developers.notion.com/reference) to update, thus you need 
 
@@ -83,7 +83,7 @@ The upload processing is line by line, if your processing failed at some line, a
 
 ## Demo
 
-![三连](README.assets/三连.png)
+![三连](https://raw.githubusercontent.com/veya2ztn/md2notion_api_version/main/figures/三连.png)
 
 ## Contribution
 
