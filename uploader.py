@@ -180,6 +180,10 @@ class Md2NotionUploader:
                     if clean_text.startswith('[') and '](' in clean_text:
                         link_text, url = re.match(r'\[(.*?)\]\((.*?)\)', clean_text).groups()
                         
+                        if (not url.startswith('http://')) and (not url.startswith('https://')):
+                            print("[WARN] Does not support uploading local file:\n\t`{}`".format(url))
+                            url = "https://local/" + url
+
                         result.append({
                             "type": "text",
                             "text": {
