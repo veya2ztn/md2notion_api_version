@@ -26,14 +26,6 @@ def arg_parser():
         help="notion account config file"
     )
 
-    parser.add_argument(
-        "--smms",
-        dest="smms",
-        type=str,
-        default="",
-        help="SMMS Image server"
-    )
-
     return parser.parse_args()
 
 
@@ -53,8 +45,8 @@ def parse_notion_cfg(notion_cfg_file):
 def upload_to_notion(md_src, notion_cfg_file):
     cfg = parse_notion_cfg(notion_cfg_file)
 
-    client = NotionSyncDatabase(cfg["secret_token"], cfg["database_id"])
-    uploader = Md2NotionUploader(image_host='smms', smms_token=args.smms)
+    client = NotionSyncDatabase(cfg["notion_token"], cfg["database_id"])
+    uploader = Md2NotionUploader(image_host='smms', smms_token=cfg["smms_token"])
 
     upload_single_file(md_src, client, uploader, start_line=0)
 

@@ -37,8 +37,12 @@ class Md2NotionUploader:
 
         for part in double_dollar_parts:
             if part.startswith('$$') and part.endswith('$$'):
-                part = part.replace('{align}','{aligned}')
-                part = part.replace('\\\n','\\\\\n')
+                # replace {align} with {aligned}
+                part = part.replace('{align}', '{aligned}')
+                # strictly replace `\<newline>` with '\\<newline>'
+                # e.g., "\\<newline>" will not be replaced
+                pattern = r"(.*[^\\])(\\\n)"
+                part = re.sub(pattern, r"\1\\\\\n", part)
                 out.append(part)
             else:
                 image_parts = re.split(r'(!\[.*?\]\(.*?\))', part)
