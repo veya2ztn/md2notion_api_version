@@ -2,6 +2,8 @@
 # Editors
 .vscode/
 
+# notion token
+notion_cfg.yaml
 
 
 # ---------------------------------- PYTHON ---------------------------------- #
