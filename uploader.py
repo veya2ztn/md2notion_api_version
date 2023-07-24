@@ -173,40 +173,37 @@ class Md2NotionUploader:
                     }
                 })
             elif part.startswith('[') and '](' in part:
-                # Process style delimiters before processing link
-                style_parts = re.split(r'(\*\*.*?\*\*|__.*?__|\*.*?\*|_.*?_|~~.*?~~|`.*?`)', part)
-                for style_part in style_parts:
-                    annotations, clean_text = self.parse_annotations(style_part)
-                    if clean_text.startswith('[') and '](' in clean_text:
-                        link_text, url = re.match(r'\[(.*?)\]\((.*?)\)', clean_text).groups()
-                        
-                        if (not url.startswith('http://')) and (not url.startswith('https://')):
-                            print("[WARN] Does not support uploading local file:\n\t`{}`".format(url))
-                            url = "https://local/" + url
+                annotations, clean_text = self.parse_annotations(part)
+                if clean_text.startswith('[') and '](' in clean_text:
+                    link_text, url = re.match(r'\[(.*?)\]\((.*?)\)', clean_text).groups()
+                    
+                    if (not url.startswith('http://')) and (not url.startswith('https://')):
+                        print("[WARN] Does not support uploading local file:\n\t`{}`".format(url))
+                        url = "https://local/" + url
 
-                        result.append({
-                            "type": "text",
-                            "text": {
-                                "content": link_text,
-                                "link": {
-                                    "url": url
-                                }
-                            },
-                            "annotations": annotations,
-                            "plain_text": link_text,
-                            "href": url
-                        })
-                    elif clean_text:
-                        result.append({
-                            "type": "text",
-                            "text": {
-                                "content": clean_text,
-                                "link": None
-                            },
-                            "annotations": annotations,
-                            "plain_text": clean_text,
-                            "href": None
-                        })
+                    result.append({
+                        "type": "text",
+                        "text": {
+                            "content": link_text,
+                            "link": {
+                                "url": url
+                            }
+                        },
+                        "annotations": annotations,
+                        "plain_text": link_text,
+                        "href": url
+                    })
+                elif clean_text:
+                    result.append({
+                        "type": "text",
+                        "text": {
+                            "content": clean_text,
+                            "link": None
+                        },
+                        "annotations": annotations,
+                        "plain_text": clean_text,
+                        "href": None
+                    })
             else:
                 # Split text by style delimiters
                 style_parts = re.split(r'(\*\*.*?\*\*|__.*?__|\*.*?\*|_.*?_|~~.*?~~|`.*?`)', part)
