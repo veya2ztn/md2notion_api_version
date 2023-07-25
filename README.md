@@ -1,106 +1,153 @@
-# md2notion_api_version
-Use Notion API to upload .md file to notion.so for typora writing style.
+# Markdown Notion Uploader
 
-## Installation
+#tutorial #config #python #notion #installation
 
-Clone the repository and install dependencies:
+This is a tutorial of **importing Markdown notes to Notion**. Here, I briefly introduce the installation steps and a simple usage example. 
+
+Of note, this package is developed based on [this repo](https://github.com/veya2ztn/md2notion_api_version).
+
+## 1. Installation
+
+### 1.1 Install Markdown Notion Uploader
+
+Download [this repo](https://github.com/TooSchoolForCool/md2notion_api_version), and install its dependencies.
 
 ```bash
-pip install md2notion
-git clone https://github.com/veya2ztn/md2notion_api_version.git
-cd notion-markdown-uploader
-
+git clone https://github.com/TooSchoolForCool/md2notion_api_version.git
+cd <md2notion_api_version>
+pip install -r requirements.txt
 ```
 
-## Configuration
+Note that `<md2notion_api_version>` refers to the directory where you downloaded the repo.
 
-### Setup Notion Connection
+### 1.2 Modify the mistletoe package
 
-Create a new integration in your Notion account and obtain the integration token.
+The `mistletoe` is a python package that parses Markdown files. However, there is a internal parsing issue when you use it for importing Markdown notes to Notion since it does not recognize the equation block when identifying the markdown *emphasis* syntax `_content_`. Thereby, we need to manually fix this issue after we install this package. (Of note, this package was already installed in the previous step).
 
-The preset configuration work for `all markdown files are collected in one database`. 
+Find and edit the file `core_tokens.py` in the package `mistletoe`. Noted that, if you install this package in a virtual environment, it usually located at
 
-For example, all markdown files appear as follow:
-
-![image-20230428191459321](https://raw.githubusercontent.com/veya2ztn/md2notion_api_version/main/figures/image-20230428191459321.png)
-
-We use [notion api](https://developers.notion.com/reference) to update, thus you need 
-
-Step1: Create a "[connection](https://www.notion.so/my-integrations)" first and obtain its `Secrets` in the connection configuration page. 
-
-Step2: link `connection` to the synced database page:
-
-- Open the database page ,
-- Press setting button at right-upper
-- Find `Add Connection` and link the page
-
-> It is possible to handle the whole notion project via Api and I recommend to read [notion-sdk-py](https://github.com/ramnes/notion-sdk-py) and [API reference](https://developers.notion.com/reference).
-
-----
-
-After setup, you need record
-
-- The **Database ID**. (For example, `88c52f937663497d93b245934c741f39`. )
-  - You need manually add `-` and obtain the true id `88c52f93-7663-497d-93b2-45934c741f39`
-- The **Connection Secrets**.
-
-### Setup SM.MS
-
-We use [SMMS](https://sm.ms/) to store local image, thus you need provide the `SMMS token` [here](https://sm.ms/home/apitoken).
-
-> You can use `usename` and `password` directly. See class `SMMS_Hosting`.
-
-> Only local image will be shared to SM.MS, any url start with`http`  get ignored.
-
-> It is easy to  implement other image hosting. For example, I also implement the `Onedrive_Hosting`. But it is impossible to create a permanent image link from OneDrive side. The only alternative way is use the `embed` link by `item.share_with_link(share_type='embed')` and upload via `{'embed': {'caption': [],'url': url}}`. See `Onedrive_Hosting` and `Md2NotionUploader._get_onedrive_client` for detail.
-
-> Currently, the notion API [doesn't support](https://developers.notion.com/reference/file-object) upload files.
-
-----
-
-After setup, you need record
-
-- The **SMMS token**.
-
-## Usage
-
-```
-python main.py -f <your_file_path> --connection_key <Connection Secrets> --database_id <Database ID> --smms_token <SMMS token>
+```bash
+~/.virtualenvs/<virtualenv>/lib/pythonx.x/site-packages/mistletoe
 ```
 
-The program will create a database item as same name as the file name.
+Here `<virtualenv>` refers to the name of your virtual environment and `pythonx.x` refers to a specific version of your python.
 
-The upload processing is line by line, if your processing failed at some line, add `start_line=?` to skip uploaded item after debug.
+Then add following lines to the function `find_core_tokens()` in file `core_tokens.py`.
 
-## TODO
 
-- ~~Support basic markdown grammar.~~
-- ~~Support typora-style math object: `$..$` for inline math and `$$\n ... \n$$` for block math~~
-- Support all markdown grammar
-- Support all notion object like `to_do` , `toggle` , etc.
-- Support update manner for exist item.
-- Support auto sync between local markdown file and online notion database.
+```python
+"""<other code>
+code_pattern = re.compile(r"(?<!\\|`)(?:\\\\)*(`+)(?!`)(.+?)(?<!`)\1(?!`)", re.DOTALL)
+"""
+equation_pattern = re.compile(r"(?<!\\)(?:\\\\)*(\$+)(?!\$)(.+?)(?<!\$)\1(?!\$)", re.DOTALL)
 
-## Demo
+def find_core_tokens(string, root):
+    """<other code>
+    code_match = code_pattern.search(string)
+    """
+    equation_match = equation_pattern.search(string)
+    
+    """<other code>
+    while i < len(string):
+        if code_match is not None and i == code_match.start():
+            if in_delimiter_run is not None:
+                delimiters.append(Delimiter(start, i if not escaped else i-1, string))
+                in_delimiter_run = None
+                escaped = False
+            _code_matches.append(code_match)
+            i = code_match.end()
+            code_match = code_pattern.search(string, i)
+            continue
+    """
+        if equation_match is not None and i == equation_match.start():
+            if in_delimiter_run is not None:
+                delimiters.append(Delimiter(start, i if not escaped else i-1, string))
+                in_delimiter_run = None
+                escaped = False
+            i = equation_match.end()
+            equation_match = equation_pattern.search(string, i)
+            continue
+        
+        """<other code>
+        c = string[i]
+        """
+    
+    """<other code>
+    process_emphasis(string, None, delimiters, matches)
+    return matches
+    """
+```
 
-![三连](https://raw.githubusercontent.com/veya2ztn/md2notion_api_version/main/figures/三连.png)
+Note that, every time you upgrade this package, you need to redo this step.
 
-## Contribution
+## 2. Usage
 
-Majority of this work is accomplished by [chatGPT](https://chat.openai.com/). It seems that anyone now can debug and implement new feature now without much familiar with "string operation". You can refer my conversation as [here](https://shareg.pt/oSacXil) . For this project, `GPT4` is much much much much more powerful than `GPT3.5`. 
+### 2.1 Configuration
 
-So far, I only pass test examples for my own notebooks consist of equation, table and content. If you find a bug, have a feature request, or just want to give feedback, please open an issue. If you would like to contribute code, you can fork the repository and make your changes on a separate branch. Once you are ready, create a pull request. We appreciate all contributions, big or small, and look forward to working with you!
+In order to use this Markdown Notion Uploader, we need several information:
 
-## Reference
+- **Notion Integration Token**: Following [this page](https://www.notion.so/my-integrations) to setup your Notion integration token. This token allows our program to access your Notion database.
+- **Database ID**: Your notion database ID. Note that, this should be a *Database* page. The url of database page follows a form of `https://www.notion.so/xxx/<database-id>?v=<viewer-id>`. You can obtain the database ID from the url. A valid database ID looks like `a8aec43384f447ed84390e8e42c2e089`
+- **SMMS Token**: [SM.MS](https://sm.ms/) is a image server that allows us to upload our image and access it via a url. We use this server to upload the image to Notion (i.e., upload the image to SM.MS and access it via url in Notion). The SMMS token could be obtain from [this page](https://sm.ms/home/apitoken) once you create an account.
 
-This repo cannot build without follow projects:
+Note that you need to **add your Integration token to your database** in Notion by adding a connection to corresponding integration of the token. Below is an example of how to setup the connection in Notion web page. 
 
-- [notion-sdk-py](https://github.com/ramnes/notion-sdk-py) 
-- [md_img_uploader](https://github.com/nifanle7/md_img_uploader)
-- [python-o365](https://github.com/O365/python-o365)
-- [md2notion](https://github.com/Cobertos/md2notion)
-- [Notion 导入 LaTeX 公式](https://zhuanlan.zhihu.com/p/360430369)
+![image-20230725111940261](./assets/image-20230725111940261.png)
 
-## License
+### 2.2 Markdown Uploader
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+We usage a YAML file to configure the aforementioned information, the YAML file format is as following
+
+```yaml
+notion_token: secret_<xxxxxx>
+database_id: a8aec43384f447ed84390e8e42c2e089
+smms_token: xxxxxx
+```
+
+Then, we can run following command to upload a local Markdown file to the target database in Notion.
+
+```bash
+cd <md2notion_api_version>
+python notion_uploader.py -c <markdown-file-dir> --cfg=<config-yaml-dir>
+```
+
+### 2.3 A Shell Shortcut
+
+We can create a SHELL function to use it like a tool anywhere. Add following lines to your SHELL configuration script (e.g., `.zshrc`, `.bashrc`, etc.).
+
+```shell
+###############################################
+# Update Markdown to Notion Database
+#
+# Usage:
+#       md2notion <markdown-file-dir>
+###############################################
+function md2notion(){
+    if [ -z "$1" ]
+    then
+        echo "Usage:\n\tmd2notion <file-dir>"
+    else
+        # activate notion environment
+        workon notion
+
+        # generate cmd
+        cmd="python <md2notion_api_version>/notion_uploader.py"
+        cmd+=" -c $1 --cfg=<config-yaml-dir>"
+
+        # print out the command
+        echo ${cmd}
+        # execute the command
+        eval ${cmd}
+    fi
+}
+```
+
+Then we can use it as follows:
+
+```bash
+md2notion <markdown-file-dir>
+```
+
+## 3. Issues
+
+Currently, the notion API doesn't support upload files.
