@@ -37,13 +37,17 @@ class Md2NotionUploader:
 
         for part in double_dollar_parts:
             if part.startswith('$$') and part.endswith('$$'):
-                part = part.replace('{align}','{aligned}')
-                part = part.replace('\\\n','\\\\\n')
+                # replace {align} with {aligned}
+                part = part.replace('{align}', '{aligned}')
+                # strictly replace `\<newline>` with '\\<newline>'
+                # e.g., "\\<newline>" will not be replaced
+                pattern = r"(.*[^\\])(\\\n)"
+                part = re.sub(pattern, r"\1\\\\\n", part)
                 out.append(part)
             else:
                 image_parts = re.split(r'(!\[.*?\]\(.*?\))', part)
                 out.extend(image_parts)
-        out = [t for t in out if t.strip()!='']
+        out = [t.strip() for t in out if t.strip()!='']
         return out
 
     def blockparser(self, s, _type="paragraph"):
@@ -169,36 +173,37 @@ class Md2NotionUploader:
                     }
                 })
             elif part.startswith('[') and '](' in part:
-                # Process style delimiters before processing link
-                style_parts = re.split(r'(\*\*.*?\*\*|__.*?__|\*.*?\*|_.*?_|~~.*?~~|`.*?`)', part)
-                for style_part in style_parts:
-                    annotations, clean_text = self.parse_annotations(style_part)
-                    if clean_text.startswith('[') and '](' in clean_text:
-                        link_text, url = re.match(r'\[(.*?)\]\((.*?)\)', clean_text).groups()
-                        
-                        result.append({
-                            "type": "text",
-                            "text": {
-                                "content": link_text,
-                                "link": {
-                                    "url": url
-                                }
-                            },
-                            "annotations": annotations,
-                            "plain_text": link_text,
-                            "href": url
-                        })
-                    elif clean_text:
-                        result.append({
-                            "type": "text",
-                            "text": {
-                                "content": clean_text,
-                                "link": None
-                            },
-                            "annotations": annotations,
-                            "plain_text": clean_text,
-                            "href": None
-                        })
+                annotations, clean_text = self.parse_annotations(part)
+                if clean_text.startswith('[') and '](' in clean_text:
+                    link_text, url = re.match(r'\[(.*?)\]\((.*?)\)', clean_text).groups()
+                    
+                    if (not url.startswith('http://')) and (not url.startswith('https://')):
+                        print("[WARN] Does not support uploading local file:\n\t`{}`".format(url))
+                        url = "https://local/" + url
+
+                    result.append({
+                        "type": "text",
+                        "text": {
+                            "content": link_text,
+                            "link": {
+                                "url": url
+                            }
+                        },
+                        "annotations": annotations,
+                        "plain_text": link_text,
+                        "href": url
+                    })
+                elif clean_text:
+                    result.append({
+                        "type": "text",
+                        "text": {
+                            "content": clean_text,
+                            "link": None
+                        },
+                        "annotations": annotations,
+                        "plain_text": clean_text,
+                        "href": None
+                    })
             else:
                 # Split text by style delimiters
                 style_parts = re.split(r'(\*\*.*?\*\*|__.*?__|\*.*?\*|_.*?_|~~.*?~~|`.*?`)', part)
