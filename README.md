@@ -1,4 +1,4 @@
-# Markdown Notion Uploader
+# Markdown Notion Importer
 
 #tutorial #config #python #notion #installation
 
