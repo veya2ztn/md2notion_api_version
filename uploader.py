@@ -47,7 +47,7 @@ class Md2NotionUploader:
             else:
                 image_parts = re.split(r'(!\[.*?\]\(.*?\))', part)
                 out.extend(image_parts)
-        out = [t for t in out if t.strip()!='']
+        out = [t.strip() for t in out if t.strip()!='']
         return out
 
     def blockparser(self, s, _type="paragraph"):
